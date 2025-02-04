@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+echo "== list bucket's"
+
+# Check bycket name
+if [ -z "$1" ]; then
+    echo "Digite o nome do bucket a ser criado eg. ./bucket my-bucket-name"
+    exit 1
+fi
+
+BUCKET_NAME=$1
+
+aws s3api list-bucket-v2 \
+--bucket $BUCKET_NAME

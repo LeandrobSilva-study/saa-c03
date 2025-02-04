@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+echo "Year | Bucket Name | Size"
+echo "--------------------------------"
+
+for bucket in $(aws s3api list-buckets --query "Buckets[*].Name" --output text); do
+  creation_date=$(aws s3api get-bucket-location --bucket $bucket --query "CreationDate" --output text | cut -d'-' -f1)
+  size=$(aws s3 ls s3://$bucket --recursive --human-readable --summarize | grep "Total Size" | awk '{print $3, $4}')
+  
+  echo "$creation_date | $bucket | $size"
+done
