@@ -23,4 +23,17 @@ aws s3api head-object --bucket my-example-bucket-ab --key file.txt
 ### Habilitar versionamento no Bucket
 aws s3api put-bucket-versioning --bucket my-example-bucket-ab --versioning-configuration Status=Enabled
 
-Referencia: https://docs.aws.amazon.com/cli/latest/reference/s3/
+### consulta erros para criar bucket pelo CloudFormation
+aws cloudformation describe-stack-events --stack-name cfn-simple-s3
+
+### copia todos os objetos de um backet para outro (clona)
+aws s3 sync s3://my-teste-bucket-saac-03 s3://bucket-temp-1984
+
+### Deletar todos os arquivos de dentro da pasta e depois removê-la
+aws s3 rm s3://my-bucket/my-folder/ --recursive
+
+### 
+### Referencia: https://docs.aws.amazon.com/cli/latest/reference/s3/
+
+
+aws s3api list-objects-v2 --bucket my-bucket --prefix my-folder/ --query "Contents[].Key" --output text | xargs -I {} aws s3api delete-object --bucket my-bucket --key "{}"

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+echo "== delete stack"
+
+# Check stack name
+if [ -z "$1" ]; then
+    echo "Digite o nome da stack a ser deletada eg. ./delete_stack_by_name my-bucket-name"
+    exit 1
+fi
+
+STACK_NAME=$1
+
+aws cloudformation delete-stack \
+--stack-name $STACK_NAME \
+--color on

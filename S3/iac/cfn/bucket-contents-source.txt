@@ -1,0 +1,13 @@
+> aws s3 sync s3://my-teste-bucket-saac-03 s3://bucket-temp-1984 --summarize
+
+
+
+
+
+
+
+
+ 
+───────────────────────────────────────────────────────────────────────────────                                                                               ─
+[ENTER] Autocomplete Choice/Execute Command    [F1] Show Shortkey Help    [F2]                                                                                F
+ocus on next panel    [F3] Hide/Show Docs    [F5] Hide/Show Output                                                                             
