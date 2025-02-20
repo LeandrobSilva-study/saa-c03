@@ -35,5 +35,14 @@ aws s3 rm s3://my-bucket/my-folder/ --recursive
 ### 
 ### Referencia: https://docs.aws.amazon.com/cli/latest/reference/s3/
 
-
+### List objects
 aws s3api list-objects-v2 --bucket my-bucket --prefix my-folder/ --query "Contents[].Key" --output text | xargs -I {} aws s3api delete-object --bucket my-bucket --key "{}"
+
+### Change metadata
+aws s3api copy-object \
+    --bucket your-bucket-name \
+    --copy-source your-bucket-name/your-object-key \
+    --key your-object-key \
+    --metadata-directive REPLACE \
+    --metadata "x-amz-meta-newkey=newvalue"
+    
