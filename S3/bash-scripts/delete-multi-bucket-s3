@@ -1,0 +1,94 @@
+#! /usr/bin/env bash
+##########
+### Configure to Unix file
+## sed $'s/\r$//' delete_bucket.sh > delete_bucket.Unix.sh
+#### Configure script ####
+## chmod +x delete-s3-buckets.sh
+## ./delete-s3-buckets.sh bucket1 bucket2 bucket3
+##########
+#set -x
+
+# Script to empty and delete multiple S3 buckets from parameters
+echo -e "\n"
+echo -e "\e[1;31mAtenção, este script apaga todos arquivos dentro do bucket, não será possível recuperar!\e[0m"
+echo -e "\n"
+read -p "Pressione ENTER para continuar ou CTRL+C para cancelar..."
+echo -e "\n"
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <bucket-name1> [bucket-name2] [bucket-name3] ..."
+    exit 1
+fi
+
+# Improved function to check command status
+check_status() {
+    local STATUS=$1
+    local MESSAGE=$2
+    local COMMAND_OUTPUT=$3
+    
+    if [ $STATUS -ne 0 ]; then
+        echo -e "\e[1;31mError: $MESSAGE\e[0m"
+        if [ -n "$COMMAND_OUTPUT" ]; then
+            echo -e "\e[1;31mCommand output: $COMMAND_OUTPUT\e[0m"
+        fi
+        return 1
+    fi
+    return 0
+}
+
+# Function to process a single bucket
+process_bucket() {
+    local BUCKET_NAME=$1
+    local OUTPUT=""
+    
+    echo "----------------------------------------"
+    echo "Processing bucket: $BUCKET_NAME"
+
+    # Check if bucket exists
+    echo "Verifying bucket exists..."
+    OUTPUT=$(aws s3 ls "s3://$BUCKET_NAME" 2>&1)
+    if ! check_status $? "Bucket $BUCKET_NAME does not exist or you don't have access" "$OUTPUT"; then
+        return 1
+    fi
+
+    # Empty the bucket
+    echo "Emptying bucket $BUCKET_NAME..."
+    OUTPUT=$(aws s3 rm "s3://$BUCKET_NAME" --recursive 2>&1)
+    if ! check_status $? "Failed to empty bucket $BUCKET_NAME" "$OUTPUT"; then
+        return 1
+    fi
+
+    # Delete the bucket
+    echo -e "\e[1;31mDeleting bucket $BUCKET_NAME...\e[0m"
+    OUTPUT=$(aws s3 rb "s3://$BUCKET_NAME" 2>&1)
+    if ! check_status $? "Failed to delete bucket $BUCKET_NAME" "$OUTPUT"; then
+        return 1
+    fi
+
+    echo -e "\e[1;32mSuccessfully emptied and deleted bucket: $BUCKET_NAME\e[0m"
+    return 0
+}
+
+echo "Starting process to empty and delete specified buckets"
+echo "Number of buckets to process: $#"
+
+SUCCESS_COUNT=0
+FAIL_COUNT=0
+
+for BUCKET in "$@"; do
+    process_bucket "$BUCKET"
+    if [ $? -eq 0 ]; then
+        ((SUCCESS_COUNT++))
+    else
+        ((FAIL_COUNT++))
+    fi
+done
+
+echo "----------------------------------------"
+echo "Process completed:"
+echo -e "\e[1;32mSuccessfully processed: $SUCCESS_COUNT buckets\e[0m"
+echo -e "\e[1;31mFailed to process: $FAIL_COUNT buckets\e[0m"
+
+if [ $FAIL_COUNT -gt 0 ]; then
+    exit 1
+fi
