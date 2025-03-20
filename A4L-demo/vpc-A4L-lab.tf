@@ -17,6 +17,11 @@ resource "aws_route_table" "rt-A4L-lab" {
   }
 }
 
+resource "aws_main_route_table_association" "rt-A4L-lab-assoc" {
+vpc_id = aws_vpc.vpc-A4L-lab.id
+route_table_id = aws_route_table.rt-A4L-lab.id
+}
+
 resource "aws_internet_gateway" "IGW-A4L-lab" {
   vpc_id = aws_vpc.vpc-A4L-lab.id
   tags = {
